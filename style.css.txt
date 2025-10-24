@@ -1,0 +1,137 @@
+/* Подключение новогоднего шрифта (пример, может потребоваться найти подходящий) */
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&display=swap'); /* Пример современного, но читаемого шрифта */
+
+:root {
+    --christmas-blue: #0A3D62; /* Темно-синий */
+    --christmas-light: #BEE3DB; /* Светлый для снега */
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Comfortaa', cursive;
+    background-color: var(--christmas-blue);
+    color: var(--christmas-light);
+    overflow: hidden; /* Скрывает полосы прокрутки для падающих снежинок */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* Новогодний фон с падающими снежинками (чистый CSS) */
+.snow-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.snow-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        /* Имитация снежинок */
+        radial-gradient(ellipse at center, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%) 0 0,
+        radial-gradient(ellipse at center, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 70%) 50px 50px,
+        radial-gradient(ellipse at center, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 70%) 100px 100px;
+    background-size: 150px 150px;
+    animation: snowfall 20s linear infinite;
+}
+
+@keyframes snowfall {
+    to {
+        background-position: 150px 300px, 200px 350px, 250px 400px;
+    }
+}
+
+/* Контейнер для снеговика и формы */
+.content-wrapper {
+    background: rgba(10, 61, 98, 0.8); /* Полупрозрачный фон для читаемости */
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    width: 90%;
+    max-width: 800px;
+}
+
+/* Заголовок */
+h1 {
+    color: #fff;
+    font-size: 2em;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+/* Форма */
+#word-input {
+    padding: 10px;
+    border: 2px solid var(--christmas-light);
+    border-radius: 8px;
+    font-size: 1.1em;
+    width: calc(100% - 100px);
+    max-width: 300px;
+    margin-right: 10px;
+    background-color: var(--christmas-blue);
+    color: var(--christmas-light);
+}
+
+button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    background-color: #E63946; /* Яркий акцентный цвет (красный) */
+    color: white;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #c0303b;
+}
+
+/* Контейнер для облака слов */
+#word-cloud-container {
+    width: 400px; /* Размер холста для облака */
+    height: 500px;
+    margin: 30px auto 0;
+    border: 3px dashed var(--christmas-light);
+    border-radius: 50%; /* Для лучшего соответствия форме */
+    position: relative;
+    overflow: hidden;
+}
+
+#word-cloud-canvas {
+    display: block;
+}
+
+/* Стили для редакторской страницы */
+#word-list-editor {
+    list-style: none;
+    padding: 0;
+    max-height: 400px;
+    overflow-y: auto;
+    text-align: left;
+}
+
+#word-list-editor li {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.3);
+}
+
+#word-list-editor button {
+    background-color: #457B9D; /* Более спокойный цвет для кнопки удаления */
+    padding: 5px 10px;
+    font-size: 0.9em;
+}

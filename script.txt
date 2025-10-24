@@ -1,0 +1,179 @@
+// --- КОНСТАНТЫ И НАСТРОЙКИ ---
+const STORAGE_KEY = 'snowman_word_cloud_words';
+// Набор нецензурных слов для простого примера (дополните по необходимости)
+const PROFANITY_WORDS = ['плохое', 'слово', 'мат', 'ругательство']; 
+
+/**
+ * Загружает слова из LocalStorage
+ * @returns {Array} Массив слов.
+ */
+function loadWords() {
+    const json = localStorage.getItem(STORAGE_KEY);
+    return json ? JSON.parse(json) : [];
+}
+
+/**
+ * Сохраняет слова в LocalStorage
+ * @param {Array} words Массив слов для сохранения.
+ */
+function saveWords(words) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(words));
+}
+
+/**
+ * Проверяет слово на нецензурную лексику.
+ * @param {string} word Слово для проверки.
+ * @returns {boolean} true, если слово является нецензурным.
+ */
+function isProfane(word) {
+    // Простая проверка: слово есть в списке PROFANITY_WORDS
+    return PROFANITY_WORDS.includes(word.toLowerCase());
+}
+
+/**
+ * Добавляет слово в массив и сохраняет.
+ * @param {string} word Слово для добавления.
+ */
+function addWord(word) {
+    let words = loadWords();
+    
+    // Проверка на нецензурность перед добавлением
+    if (isProfane(word)) {
+        alert('Это слово не подходит для нашего снеговика! Попробуйте другое. 🚫');
+        return; 
+    }
+    
+    // Ограничение: слово должно быть уникальным
+    if (!words.includes(word)) {
+        words.push(word);
+        saveWords(words);
+        drawWordCloud(); // Перерисовать облако после добавления
+        return true;
+    } else {
+        alert('Это слово уже есть! Попробуйте другое. ❄️');
+        return false;
+    }
+}
+
+/**
+ * Удаляет слово из массива и сохраняет (используется на editor.html).
+ * @param {string} word Слово для удаления.
+ */
+function removeWord(word) {
+    let words = loadWords();
+    const newWords = words.filter(w => w !== word);
+    saveWords(newWords);
+    
+    // Если мы в редакторе, нужно обновить список
+    if (document.getElementById('word-list-editor')) {
+        renderEditorList(newWords);
+    }
+    drawWordCloud(); // Перерисовать облако
+}
+
+/**
+ * Преобразует массив слов в формат, нужный wordcloud2.js: [['слово', вес], ...]
+ * Вес можно задать одинаковым или случайным.
+ * @param {Array} words Массив слов.
+ * @returns {Array<Array>} Список слов с весами.
+ */
+function processWordsForCloud(words) {
+    // В данном примере все слова имеют одинаковый вес (размер).
+    // Для более сложной логики можно учитывать частоту, длину и т.д.
+    return words.map(word => [word, 1 + Math.random() * 5]); // Случайный вес от 1 до 6
+}
+
+/**
+ * Отрисовывает облако слов в форме снеговика.
+ */
+function drawWordCloud() {
+    const canvas = document.getElementById('word-cloud-canvas');
+    if (!canvas) return; // Выход, если элемента нет (например, на editor.html)
+    
+    const words = loadWords();
+    const list = processWordsForCloud(words);
+    
+    const container = document.getElementById('word-cloud-container');
+
+    // Очистка предыдущего облака
+    WordCloud(canvas, { clearCanvas: true });
+
+    // Параметры для снеговика (используем форму 'circle' и CSS для визуальной формы)
+    // Библиотека wordcloud2.js не поддерживает произвольную SVG/PNG маску, 
+    // но 'circle' хорошо работает с CSS-формой. 
+    // Для точного снеговика пришлось бы использовать d3-cloud с маской.
+
+    WordCloud(canvas, {
+        list: list,
+        gridSize: 10,
+        weightFactor: 5, // Базовый размер слова
+        fontFamily: 'Comfortaa',
+        color: '#BEE3DB', // Цвет снега
+        backgroundColor: 'rgba(0,0,0,0)', // Прозрачный фон
+        drawOutOfBound: false,
+        shuffle: true,
+        rotateRatio: 0, // Не поворачивать слова
+        // Форма 'circle' для имитации шара снеговика, который ограничивается CSS-контейнером
+        shape: 'circle', 
+        ellipticity: 1,
+        // Для лучшей видимости на темно-синем
+        // Text-shadow зададим через стили.
+    });
+}
+
+// --- ЛОГИКА ДЛЯ index.html (ВВОД СЛОВ) ---
+const wordForm = document.getElementById('word-form');
+if (wordForm) {
+    wordForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const wordInput = document.getElementById('word-input');
+        const word = wordInput.value.trim();
+        
+        if (word) {
+            if (addWord(word)) {
+                wordInput.value = ''; // Очистка поля при успешном добавлении
+            }
+        }
+    });
+    
+    // Загрузка и отрисовка облака при загрузке страницы
+    drawWordCloud();
+}
+
+// --- ЛОГИКА ДЛЯ editor.html (РЕДАКТОР) ---
+
+/**
+ * Отрисовывает список слов для редактирования.
+ * @param {Array} words Список слов.
+ */
+function renderEditorList(words) {
+    const listElement = document.getElementById('word-list-editor');
+    if (!listElement) return;
+
+    listElement.innerHTML = ''; // Очистка
+    
+    words.forEach(word => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <span>${word}</span>
+            <button data-word="${word}">Удалить</button>
+        `;
+        listElement.appendChild(li);
+    });
+
+    // Добавление обработчиков удаления
+    listElement.querySelectorAll('button').forEach(button => {
+        button.addEventListener('click', function() {
+            const wordToRemove = this.getAttribute('data-word');
+            if (confirm(`Вы уверены, что хотите удалить слово "${wordToRemove}"?`)) {
+                removeWord(wordToRemove);
+            }
+        });
+    });
+}
+
+const editorList = document.getElementById('word-list-editor');
+if (editorList) {
+    const initialWords = loadWords();
+    renderEditorList(initialWords);
+}

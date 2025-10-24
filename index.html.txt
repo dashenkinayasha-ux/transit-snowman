@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>☃️ Облако Снеговик - Добавьте слово!</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wordcloud2.js/1.0.1/wordcloud2.min.js"></script>
+</head>
+<body>
+    <div class="snow-container"></div>
+    <div class="content-wrapper">
+        <h1>Снеговик-конструктор ☃️</h1>
+        <p>Напишите свое новогоднее слово! Оно станет частью нашего снеговика.</p>
+        
+        <form id="word-form">
+            <input type="text" id="word-input" placeholder="Введите слово (например, Радость)" maxlength="20" required>
+            <button type="submit">Добавить</button>
+        </form>
+        
+        <div id="word-cloud-container">
+            <canvas id="word-cloud-canvas"></canvas>
+            </div>
+
+        <p>
+            <small>
+                * Редакторская ссылка: <a href="editor.html" style="color: #457B9D;">Перейти к редактору</a>
+            </small>
+        </p>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
